@@ -1,2 +1,3 @@
 dublib==0.13.0
 dublib[telebot]
+g4f
