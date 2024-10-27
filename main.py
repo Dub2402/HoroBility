@@ -5,6 +5,8 @@ from Source.ReplyKeyboards import ReplyKeyboards
 from dublib.Methods.Filesystem import MakeRootDirectories
 from dublib.Methods.System import Clear
 from Source.Neurowork import Neurwork
+from Source.Updater import Updater
+from Source.Functions import DeleteSymbols, GetTodayDate
 
 import telebot
 import logging
@@ -23,6 +25,7 @@ Bot = telebot.TeleBot(Settings["token"])
 usermanager = UsersManager("Data/Users")
 ReplyKeyboardBox = ReplyKeyboards()
 neurowork = Neurwork()
+updater = Updater()
 
 
 @Bot.message_handler(commands=["start"])
@@ -71,7 +74,7 @@ def ProcessShareWithFriends(Message: types.Message):
 	User = usermanager.auth(Message.from_user)
 
 	if User.expected_type == "first_zodiak":
-		User.set_property("first_zodiak", Message.text)
+		User.set_property("first_zodiak", DeleteSymbols(Message.text))
 		Bot.send_message(
 			Message.chat.id, 
 			text = "А теперь выберите знак зодиака человека, на которого хотите посмотреть:",
@@ -81,7 +84,7 @@ def ProcessShareWithFriends(Message: types.Message):
 		return
 	
 	if User.expected_type == "second_zodiak":
-		User.set_property("second_zodiak", Message.text)
+		User.set_property("second_zodiak", DeleteSymbols(Message.text))
 		if User.get_property("type") == "General":
 			Bot.send_message(
 				Message.chat.id, 
@@ -89,9 +92,18 @@ def ProcessShareWithFriends(Message: types.Message):
 				reply_markup = ReplyKeyboardBox.AddMainMenu()
 				)
 		else:
+			Today = GetTodayDate()
+			Key = updater.CreateKey(User.get_property("first_zodiak"), User.get_property("second_zodiak"))
+			print(Key)
+			if updater.GetText(Key):
+				Text = updater.GetText(Key)
+			else:
+				Text = neurowork.GetResponce(User)
+				updater.AddText(Text, Key, Today)
+			print(Text)
 			Bot.send_message(
 				Message.chat.id, 
-				text = neurowork.GetResponce(User),
+				text = Text,
 				reply_markup = ReplyKeyboardBox.AddMainMenu(), 
 				parse_mode = "MarkdownV2" 
 				)
