@@ -1,3 +1,4 @@
 {
-    "token": ""
+    "token": "",
+    "start_updating": {"hour": 0, "minute": 0}
 }

@@ -24,5 +24,5 @@ def DeleteSymbols(zodiak):
 
             return new_zodiak
 
-def GetTodayDate():
+def GetTodayDate() -> str:
     return datetime.today().date().strftime("%d.%m.%Y")

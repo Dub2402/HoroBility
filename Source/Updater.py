@@ -1,8 +1,14 @@
-from dublib.Methods.JSON import ReadJSON
+from dublib.Methods.JSON import ReadJSON, WriteJSON
+from Source.Neurowork import Neurwork
+from Source.Functions import GetTodayDate
+
 
 class Updater:
 
-    def __init__(self) -> None:
+    def __Save(self):
+        WriteJSON("Response.json", self.__Data)
+
+    def __init__(self, neurowork: Neurwork) -> None:
         self.__Sequence = (
             "Овен",
             "Телец", 
@@ -17,6 +23,8 @@ class Updater:
             "Водолей", 
             "Рыбы"
             )
+        self.__Data = ReadJSON("Response.json")
+        self.__neurowork = neurowork
         
     def CreateKey(self, first_zodiak, second_zodiak) -> str:
 
@@ -30,11 +38,25 @@ class Updater:
 
         return Key
 
-    def GetText(self, Key) -> str:
+    def GetValue(self, Zodiak_Key, Key_attribute) -> str:
 
-        Text = ReadJSON("Response.json")[Key]["text"]
+        Value = ReadJSON("Response.json")[Zodiak_Key][Key_attribute]
 
-        return Text
+        return Value
     
-    def AddText(self, Text):
-        pass
+    def AddText(self, Text, Zodiak_Key, Today):
+        self.__Data[Zodiak_Key] = {
+            "date": Today,
+            "text": Text
+            }
+        self.__Save()
+
+
+    def UpdateJson(self):
+        Today = GetTodayDate()
+        for Zodiak_Key in self.__Data:
+            if self.GetValue(Zodiak_Key, "date") != Today:
+                first_zodiak = Zodiak_Key.split("_")[0]
+                second_zodiak = Zodiak_Key.split("_")[1]
+                Text = self.__neurowork.GetResponce(first_zodiak, second_zodiak)
+                self.AddText(Text, Zodiak_Key, Today)
