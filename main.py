@@ -1,11 +1,13 @@
 from dublib.Methods.JSON import ReadJSON
 from dublib.TelebotUtils import UsersManager
+from dublib.TelebotUtils.Cache import TeleCache
 from dublib.Methods.Filesystem import MakeRootDirectories
 from dublib.Methods.System import Clear
 from Source.Neurowork import Neurwork
 from Source.Updater import Updater
 from Source.Functions import DeleteSymbols, GetTodayDate
 from Source.ReplyKeyboards import ReplyKeyboards
+from Source.InlineKeyboards import InlineKeyboards
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import telebot
@@ -24,15 +26,26 @@ logging.basicConfig(level=logging.INFO, encoding="utf-8", filename="LOGING.log",
 Bot = telebot.TeleBot(Settings["token"])
 usermanager = UsersManager("Data/Users")
 ReplyKeyboardBox = ReplyKeyboards()
+InlineKeyboardsBox = InlineKeyboards()
 neurowork = Neurwork()
 updater = Updater(neurowork)
 scheduler = BackgroundScheduler()
 
-StartUpdating = Settings["start_updating"]
-
-scheduler.add_job(updater.UpdateJson, 'cron', hour = StartUpdating["hour"], minute = StartUpdating["minute"])
+scheduler.add_job(updater.UpdateJson, 'cron', hour = Settings["updating_time"].split(":")[0], minute = Settings["updating_time"].split(":")[1])
 scheduler.start()
 
+# Инициализация менеджера кэша.
+Cacher = TeleCache()
+# Установка данных для выгрузки медиафайлов.
+Cacher.set_options(Settings["token"], Settings["chat_id"])
+
+# Получение структуры данных кэшированного файла.
+try:
+	File = Cacher.get_cached_file(Settings["path_to_image"], type = types.InputMediaPhoto)
+	# Получение ID кэшированного файла.
+	FileID = Cacher[Settings["path_to_image"]]
+except KeyError:
+	pass
 
 @Bot.message_handler(commands=["start"])
 def ProcessCommandStart(Message: types.Message):
@@ -73,6 +86,23 @@ def ProcessShareWithFriends(Message: types.Message):
 @Bot.message_handler(content_types = ["text"], regexp = "Поделиться с друзьями")
 def ProcessShareWithFriends(Message: types.Message):
 	User = usermanager.auth(Message.from_user)
+	try:
+		Bot.send_photo(
+			Message.chat.id, 
+			photo = FileID,
+			caption="@Sowmes\\_bot\n@Sowmes\\_bot\n@Sowmes\\_bot\n\n*Совместимость по гороскопу*\nВсе знаки зодиака и все главные сферы жизни 😏🤞", 
+			reply_markup=InlineKeyboardsBox.AddShare(), 
+			parse_mode= "MarkdownV2"
+			)
+	except NameError:
+		Bot.send_message(
+			Message.chat.id, 
+			text="@Sowmes\\_bot\n@Sowmes\\_bot\n@Sowmes\\_bot\n\n*Совместимость по гороскопу*\nВсе знаки зодиака и все главные сферы жизни 😏🤞", 
+			reply_markup=InlineKeyboardsBox.AddShare(), 
+			parse_mode= "MarkdownV2"
+			)
+
+
 
 
 @Bot.message_handler(content_types = ["text"])

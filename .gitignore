@@ -1,5 +1,8 @@
 .venv
 .git
 __pycache__
+
 Data
 LOGING.log
+TeleCache.json
+QR-code.jpg

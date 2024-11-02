@@ -1,4 +1,6 @@
 {
     "token": "",
-    "start_updating": {"hour": 0, "minute": 0}
+    "updating_time": "00:01",
+    "share_image_path": "",
+    "chat_id": null
 }
