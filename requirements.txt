@@ -3,3 +3,4 @@ dublib[telebot]
 g4f
 apscheduler
 git+https://github.com/DUB1401/dublib
+langdetect

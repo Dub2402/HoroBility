@@ -41,11 +41,12 @@ Cacher.set_options(Settings["token"], Settings["chat_id"])
 
 # Получение структуры данных кэшированного файла.
 try:
-	File = Cacher.get_cached_file(Settings["path_to_image"], type = types.InputMediaPhoto)
+	File = Cacher.get_cached_file(Settings["share_image_path"], type = types.InputMediaPhoto)
 	# Получение ID кэшированного файла.
-	FileID = Cacher[Settings["path_to_image"]]
+	FileID = Cacher[Settings["share_image_path"]]
 except KeyError:
 	pass
+
 
 @Bot.message_handler(commands=["start"])
 def ProcessCommandStart(Message: types.Message):
