@@ -3,11 +3,13 @@ from dublib.TelebotUtils import UsersManager
 from dublib.TelebotUtils.Cache import TeleCache
 from dublib.Methods.Filesystem import MakeRootDirectories
 from dublib.Methods.System import Clear
+
 from Source.Neurowork import Neurwork
 from Source.Updater import Updater
 from Source.Functions import DeleteSymbols, GetTodayDate
 from Source.ReplyKeyboards import ReplyKeyboards
 from Source.InlineKeyboards import InlineKeyboards
+
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import telebot
@@ -28,7 +30,7 @@ usermanager = UsersManager("Data/Users")
 ReplyKeyboardBox = ReplyKeyboards()
 InlineKeyboardsBox = InlineKeyboards()
 neurowork = Neurwork()
-updater = Updater(neurowork)
+updater = Updater(neurowork, Bot, Settings["chat_id"])
 scheduler = BackgroundScheduler()
 
 scheduler.add_job(updater.UpdateJson, 'cron', hour = Settings["updating_time"].split(":")[0], minute = Settings["updating_time"].split(":")[1])
@@ -56,7 +58,6 @@ def ProcessCommandStart(Message: types.Message):
 		"Добро пожаловать в мир тайн вашей совместимости! Приоткройте их завесу и узнайте, что же вам подсказывают звезды! 💫", 
 		reply_markup = ReplyKeyboardBox.AddMainMenu()
 		)
-	Bot.delete_message(Message.chat.id, Message.id)
 
 @Bot.message_handler(content_types = ["text"], regexp = "Общая совместимость")
 def ProcessShareWithFriends(Message: types.Message):
@@ -69,7 +70,6 @@ def ProcessShareWithFriends(Message: types.Message):
 		)
 	User.set_property("type", "General")
 	User.set_expected_type("first_zodiak")
-	Bot.delete_message(Message.chat.id, Message.id)
 	  
 @Bot.message_handler(content_types = ["text"], regexp = "Совместимость на сегодня")
 def ProcessShareWithFriends(Message: types.Message):
@@ -82,7 +82,6 @@ def ProcessShareWithFriends(Message: types.Message):
 		)
 	User.set_property("type", "Today")
 	User.set_expected_type("first_zodiak")
-	Bot.delete_message(Message.chat.id, Message.id)
 	
 @Bot.message_handler(content_types = ["text"], regexp = "Поделиться с друзьями")
 def ProcessShareWithFriends(Message: types.Message):
@@ -102,9 +101,6 @@ def ProcessShareWithFriends(Message: types.Message):
 			reply_markup=InlineKeyboardsBox.AddShare(), 
 			parse_mode= "MarkdownV2"
 			)
-
-
-
 
 @Bot.message_handler(content_types = ["text"])
 def ProcessShareWithFriends(Message: types.Message):
@@ -144,7 +140,5 @@ def ProcessShareWithFriends(Message: types.Message):
 				)
 		User.set_expected_type(None)
 		return
-	
-	Bot.delete_message(Message.chat.id, Message.id)
 	
 Bot.infinity_polling()

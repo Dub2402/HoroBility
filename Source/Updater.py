@@ -1,14 +1,14 @@
 from dublib.Methods.JSON import ReadJSON, WriteJSON
 from Source.Neurowork import Neurwork
 from Source.Functions import GetTodayDate
-
+import telebot
 
 class Updater:
 
     def __Save(self):
         WriteJSON("Response.json", self.__Data)
 
-    def __init__(self, neurowork: Neurwork) -> None:
+    def __init__(self, neurowork: Neurwork, Bot: telebot.TeleBot, chat_id: int) -> None:
         self.__Sequence = (
             "Овен",
             "Телец", 
@@ -25,6 +25,8 @@ class Updater:
             )
         self.__Data = ReadJSON("Response.json")
         self.__neurowork = neurowork
+        self.__Bot = Bot
+        self.__chat_id = chat_id
         
     def CreateKey(self, first_zodiak, second_zodiak) -> str:
 
@@ -51,8 +53,11 @@ class Updater:
             }
         self.__Save()
 
-
     def UpdateJson(self):
+        self.__Bot.send_message(
+                    self.__chat_id,
+                    "Начало обновления данных в json."
+                )
         Today = GetTodayDate()
         for Zodiak_Key in self.__Data:
             if self.GetValue(Zodiak_Key, "date") != Today:
@@ -60,3 +65,8 @@ class Updater:
                 second_zodiak = Zodiak_Key.split("_")[1]
                 Text = self.__neurowork.GetResponce(first_zodiak, second_zodiak)
                 self.AddText(Text, Zodiak_Key, Today)
+                self.__Bot.send_message(
+                    self.__chat_id,
+                    Text,
+                    parse_mode = "MarkdownV2" 
+                )
