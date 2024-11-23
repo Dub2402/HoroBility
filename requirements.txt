@@ -1,5 +1,5 @@
-dublib==0.13.0
+dublib==0.14.0
 dublib[telebot]
-g4f
+g4f==0.3.3.3
 apscheduler
 git+https://github.com/DUB1401/dublib

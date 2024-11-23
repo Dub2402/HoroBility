@@ -19,3 +19,21 @@ class InlineKeyboards:
 
 		return Menu
 
+	def notifications_confirm(self) -> types.InlineKeyboardMarkup:
+
+		Menu = types.InlineKeyboardMarkup()
+		No = types.InlineKeyboardButton("Нет", callback_data = "notifications_answer_no")
+		Yes = types.InlineKeyboardButton("Да", callback_data = "notifications_answer_yes")
+		Menu.add(No, Yes, row_width = 2)
+		
+		return Menu
+	
+	def notifications_disable(self) -> types.InlineKeyboardMarkup:
+
+		Menu = types.InlineKeyboardMarkup()
+		No = types.InlineKeyboardButton("Нет", callback_data = "notifications_disable_no")
+		Yes = types.InlineKeyboardButton("Да", callback_data = "notifications_disable_yes")
+		Menu.add(No, Yes, row_width = 2)
+		
+		return Menu
+
