@@ -1,5 +1,4 @@
-from dublib.Methods.JSON import ReadJSON
-from dublib.TelebotUtils import UserData, UsersManager
+from dublib.TelebotUtils import UsersManager
 
 from Source.Updater import Updater
 
@@ -19,16 +18,18 @@ class Mailer:
 		
 		for User in self.__usermanager.users:
 			logging.info(f"Начата рассылка: {User.id} ")
-			try: Text = self.__updater.GetValue(User.get_property("notification_key"), "text")
-			except KeyError: pass
-			try:
+			try: 
+				Text = self.__updater.GetValue(User.get_property("notification_key"), "text")
 				self.__Bot.send_message(
 					User.id, 
 					Text,
 					parse_mode = "MarkdownV2"
 				)
+				Text = None
+				logging.info(f"Совместимость {User.get_property("notification_key")} отправлена {User.id} ")
 				User.set_chat_forbidden(False)
-			
+
+			except KeyError: logging.info(f"Рассылка выключена {User.id}")
 			except Exception as E: 
 				logging.info(f"{E}, {User.id}")
 				User.set_chat_forbidden(True)

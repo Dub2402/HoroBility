@@ -27,6 +27,8 @@ logging.basicConfig(level=logging.INFO, encoding="utf-8", filename="LOGING.log",
 	format='%(asctime)s - %(levelname)s - %(message)s',
 	datefmt='%Y-%m-%d %H:%M:%S')
 
+logging.getLogger("pyTelegramBotAPI").setLevel(logging.WARNING)
+
 Bot = telebot.TeleBot(Settings["token"])
 usermanager = UsersManager("Data/Users")
 ReplyKeyboardBox = ReplyKeyboards()
