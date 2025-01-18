@@ -1,4 +1,4 @@
-dublib==0.14.1
+dublib==0.16.0
 dublib[telebot]
 g4f==0.3.3.3
 apscheduler
