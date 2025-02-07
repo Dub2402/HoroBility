@@ -66,7 +66,7 @@ def ProcessCommandStart(Message: types.Message):
 		"Добро пожаловать в мир тайн вашей совместимости! Приоткройте их завесу и узнайте, что же вам предсказывают звезды! 💫", 
 		reply_markup = ReplyKeyboardBox.AddMainMenu()
 		)
-	
+
 @Bot.message_handler(commands = ["mailset"])
 def ProcessCommandMailset(Message: types.Message):
 	User = usermanager.auth(Message.from_user)
@@ -126,14 +126,14 @@ def ProcessShareWithFriends(Message: types.Message):
 		Bot.send_photo(
 			Message.chat.id, 
 			photo = FileID,
-			caption="@Sowmes\\_bot\n@Sowmes\\_bot\n@Sowmes\\_bot\n\n*Совместимость по гороскопу*\nВсе знаки зодиака и самые главные сферы жизни 🤞☺️🤞", 
+			caption="@Sowmes\\_bot\n@Sowmes\\_bot\n@Sowmes\\_bot\n\n*Совместимость по гороскопу*\nВсе знаки зодиака и все главные сферы жизни 🤞☺️🤞", 
 			reply_markup=InlineKeyboardsBox.AddShare(), 
 			parse_mode= "MarkdownV2"
 			)
 	except NameError:
 		Bot.send_message(
 			Message.chat.id, 
-			text="@Sowmes\\_bot\n@Sowmes\\_bot\n@Sowmes\\_bot\n\n*Совместимость по гороскопу*\nВсе знаки зодиака и самые главные сферы жизни 🤞☺️🤞", 
+			text="@Sowmes\\_bot\n@Sowmes\\_bot\n@Sowmes\\_bot\n\n*Совместимость по гороскопу*\nВсе знаки зодиака и все главные сферы жизни 🤞☺️🤞", 
 			reply_markup=InlineKeyboardsBox.AddShare(), 
 			parse_mode= "MarkdownV2"
 			)
@@ -165,7 +165,7 @@ def ProcessShareWithFriends(Message: types.Message):
 			User.set_property("first_zodiak", DeleteSymbols(Message.text))
 			Bot.send_message(
 				Message.chat.id, 
-				text = "А теперь выберите знак зодиака человека, на которого хотите посмотреть:",
+				text = "А теперь выберите знак зодиака человека, на кого хотите посмотреть:",
 				reply_markup = ReplyKeyboardBox.ZodiacMenu()
 				)
 			User.set_expected_type("second_zodiak")
@@ -198,24 +198,30 @@ def ProcessShareWithFriends(Message: types.Message):
 			File = Cacher.get_cached_file(path = f"Materials/{SecondZodiak}/{FirstZodiak}.jpg", type = types.InputMediaPhoto)
 			Photo_Original = Cacher[f"Materials/{FirstZodiak}/{SecondZodiak}.jpg"]
 			Photo_Mirror = Cacher[f"Materials/{SecondZodiak}/{FirstZodiak}.jpg"]
+
 			match User.get_property("type"):
 				case "General":
-					Text = GeneralTexts[f"{FirstZodiak}_{SecondZodiak}"].split("🏠")
-					Bot.send_photo(
-						chat_id = Message.chat.id, 
-						photo = Photo_Original,
-						caption = Text[0],
-						reply_markup = ReplyKeyboardBox.AddMainMenu(),
-						parse_mode= "HTML"
-						)
-					Bot.send_photo(
-						chat_id = Message.chat.id, 
-						photo = Photo_Mirror,
-						caption = Text[-1],
-						reply_markup = ReplyKeyboardBox.AddMainMenu(),
-						parse_mode= "HTML", 
-						show_caption_above_media = True
-						)
+					Text = GeneralTexts[f"{FirstZodiak}_{SecondZodiak}"].split("❤")
+					try:
+						Bot.send_photo(
+							chat_id = Message.chat.id, 
+							photo = Photo_Original,
+							caption = Text[0],
+							reply_markup = ReplyKeyboardBox.AddMainMenu(),
+							parse_mode= "HTML"
+							)
+						
+						Bot.send_photo(
+							chat_id = Message.chat.id, 
+							photo = Photo_Mirror,
+							caption = "❤ " + Text[1],
+							reply_markup = ReplyKeyboardBox.AddMainMenu(),
+							parse_mode= "HTML", 
+							show_caption_above_media = True
+							)
+					except Exception as E:
+						logging.info(f"Ошибка в отправке {FirstZodiak}_{SecondZodiak}, {E}")
+
 					
 				case "Today":
 					Today = GetTodayDate()
