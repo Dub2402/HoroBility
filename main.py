@@ -63,7 +63,7 @@ def ProcessCommandStart(Message: types.Message):
 	User.set_property("notification_key", None, force = False)
 	Bot.send_message(
 		Message.chat.id, 
-		"Добро пожаловать в мир тайн вашей совместимости! Приоткройте их завесу и узнайте, что же вам предсказывают звезды! 💫", 
+		"Добро пожаловать в мир тайн вашей совместимости!\nПриоткройте их завесу и узнайте, что же вам предсказали звезды! 💫", 
 		reply_markup = ReplyKeyboardBox.AddMainMenu()
 		)
 
@@ -126,16 +126,16 @@ def ProcessShareWithFriends(Message: types.Message):
 		Bot.send_photo(
 			Message.chat.id, 
 			photo = FileID,
-			caption="@Sowmes\\_bot\n@Sowmes\\_bot\n@Sowmes\\_bot\n\n*Совместимость по гороскопу*\nВсе знаки зодиака и все главные сферы жизни 🤞☺️🤞", 
+			caption="@Sowmes_bot\n@Sowmes_bot\n@Sowmes_bot\n\n<b>Совместимость по гороскопу</b>\nВсе знаки зодиака и все главные сферы жизни 🤞☺️🤞\n\n<b><i>Пользуйтесь и делитесь с друзьями!</i></b>", 
 			reply_markup=InlineKeyboardsBox.AddShare(), 
-			parse_mode= "MarkdownV2"
+			parse_mode= "HTML"
 			)
 	except NameError:
 		Bot.send_message(
 			Message.chat.id, 
-			text="@Sowmes\\_bot\n@Sowmes\\_bot\n@Sowmes\\_bot\n\n*Совместимость по гороскопу*\nВсе знаки зодиака и все главные сферы жизни 🤞☺️🤞", 
+			text="@Sowmes\\_bot\n@Sowmes\\_bot\n@Sowmes\\_bot\n\n*Совместимость по гороскопу*\nВсе знаки зодиака и все главные сферы жизни 🤞☺️🤞\n\nПользуйтесь и делитесь с друзьями!", 
 			reply_markup=InlineKeyboardsBox.AddShare(), 
-			parse_mode= "MarkdownV2"
+			parse_mode= "HTML"
 			)
 
 @Bot.message_handler(content_types = ["text"])
