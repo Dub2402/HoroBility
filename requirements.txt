@@ -1,4 +1,4 @@
-dublib==0.16.0
-dublib[telebot]
+-r Source/TeleBotAdminPanel/requirements.txt
+dublib==0.16.2
 g4f==0.3.3.3
 apscheduler

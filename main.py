@@ -1,6 +1,7 @@
 from dublib.Methods.Filesystem import ReadJSON
 from dublib.TelebotUtils import UsersManager
 from dublib.TelebotUtils.Cache import TeleCache
+from dublib.TelebotUtils import TeleMaster
 from dublib.Methods.Filesystem import MakeRootDirectories
 from dublib.Methods.System import Clear
 
@@ -10,12 +11,12 @@ from Source.Functions import DeleteSymbols, GetTodayDate, MirrorText, ChangeMorp
 from Source.ReplyKeyboards import ReplyKeyboards
 from Source.InlineKeyboards import InlineKeyboards
 from Source.Mailer import Mailer
+from Source.TeleBotAdminPanel import Panel
 
-from apscheduler.schedulers.background import BackgroundScheduler
-
-import telebot
 import logging
 from telebot import types
+from time import sleep
+from apscheduler.schedulers.background import BackgroundScheduler
 
 Clear()
 
@@ -30,13 +31,15 @@ logging.basicConfig(level=logging.INFO, encoding="utf-8", filename="LOGING.log",
 logging.getLogger("pyTelegramBotAPI").setLevel(logging.WARNING)
 logging.getLogger("requests").setLevel(logging.WARNING)
 
-Bot = telebot.TeleBot(Settings["token"])
+MasterBot = TeleMaster(Settings["token"])
+Bot = MasterBot.bot
 usermanager = UsersManager("Data/Users")
 ReplyKeyboardBox = ReplyKeyboards()
 InlineKeyboardsBox = InlineKeyboards()
 neurowork = Neurwork()
 updater = Updater(neurowork, Bot, Settings["chat_id"])
 scheduler = BackgroundScheduler()
+AdminPanel = Panel()
 
 # Инициализация менеджера кэша.
 Cacher = TeleCache()
@@ -57,6 +60,7 @@ try:
 except KeyError:
 	pass
 
+AdminPanel.decorators.commands(Bot, usermanager, Settings["password"])
 @Bot.message_handler(commands = ["start"])
 def ProcessCommandStart(Message: types.Message):
 	User = usermanager.auth(Message.from_user)
@@ -71,6 +75,54 @@ def ProcessCommandStart(Message: types.Message):
 def ProcessCommandMailset(Message: types.Message):
 	User = usermanager.auth(Message.from_user)
 	Bot.send_message(Message.chat.id, ("Желаете включить утреннюю рассылку <b>Совместимости по гороскопу</b>?"), parse_mode = "HTML", reply_markup = InlineKeyboardsBox.notifications())
+
+@Bot.message_handler(commands = ["common"])
+def ProcessCommandStart(Message: types.Message):
+	User = usermanager.auth(Message.from_user)
+	for i in GeneralTexts.keys():
+		FirstZodiak = i.split("_")[0]
+		SecondZodiak = i.split("_")[-1]
+		File = Cacher.get_cached_file(path = f"Materials/{FirstZodiak}/{SecondZodiak}.jpg", type = types.InputMediaPhoto)
+		File = Cacher.get_cached_file(path = f"Materials/{SecondZodiak}/{FirstZodiak}.jpg", type = types.InputMediaPhoto)
+		Photo_Original = Cacher[f"Materials/{FirstZodiak}/{SecondZodiak}.jpg"]
+		Photo_Mirror = Cacher[f"Materials/{SecondZodiak}/{FirstZodiak}.jpg"]
+		Text = GeneralTexts[f"{FirstZodiak}_{SecondZodiak}"].split("❤")
+		Bot.send_photo(
+			chat_id = Message.chat.id, 
+			photo = Photo_Original,
+			caption = Text[0],
+			reply_markup = ReplyKeyboardBox.AddMainMenu(),
+			parse_mode= "HTML"
+			)
+						
+		Bot.send_photo(
+			chat_id = Message.chat.id, 
+			photo = Photo_Mirror,
+			caption = "❤" + Text[1],
+			reply_markup = ReplyKeyboardBox.AddMainMenu(),
+			parse_mode= "HTML", 
+			show_caption_above_media = True
+			)
+		sleep(1)
+
+@Bot.message_handler(commands = ["count"])
+def ProcessCommandMailset(Message: types.Message):
+	User = usermanager.auth(Message.from_user)
+	from dublib.Polyglot import HTML
+	
+	for key in GeneralTexts.keys():
+		for part in (0, 1):
+			if len(HTML(GeneralTexts[key].split("❤")[part]).plain_text) >= 1024:
+				Part = "(до сердца)" if part == 0 else "(после сердца)"
+				Bot.send_message(
+					Message.chat.id,
+					text = f"{key}, {len(HTML(GeneralTexts[key].split("❤")[part]).plain_text)} " + Part
+				)
+			else: pass
+	Bot.send_message(
+					Message.chat.id,
+					text = "Проверка закончена."
+				)
 
 @Bot.callback_query_handler(func = lambda Callback: Callback.data.startswith("notifications"))
 def InlineButton(Call: types.CallbackQuery):
@@ -95,6 +147,7 @@ def InlineButton(Call: types.CallbackQuery):
 			reply_markup = None
 		)
 
+AdminPanel.decorators.reply_keyboards(Bot, usermanager)
 @Bot.message_handler(content_types = ["text"], regexp = "Общая совместимость")
 def ProcessShareWithFriends(Message: types.Message):
 	User = usermanager.auth(Message.from_user)
@@ -214,7 +267,7 @@ def ProcessShareWithFriends(Message: types.Message):
 						Bot.send_photo(
 							chat_id = Message.chat.id, 
 							photo = Photo_Mirror,
-							caption = "❤ " + Text[1],
+							caption = "❤" + Text[1],
 							reply_markup = ReplyKeyboardBox.AddMainMenu(),
 							parse_mode= "HTML", 
 							show_caption_above_media = True
@@ -260,6 +313,15 @@ def ProcessShareWithFriends(Message: types.Message):
 			User.set_expected_type(None)
 			User.set_property("type", None)
 			return
-	
+
+AdminPanel.decorators.inline_keyboards(Bot, usermanager)
+
+AdminPanel.decorators.photo(Bot, usermanager)
+
+@Bot.message_handler(content_types = ["audio", "document", "video"])
+def File(Message: types.Message):
+	User = usermanager.auth(Message.from_user)
+	if AdminPanel.procedures.files(Bot, User, Message): pass
+
 Bot.infinity_polling()
 
