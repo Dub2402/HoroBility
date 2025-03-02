@@ -1,3 +1,4 @@
+import g4f.Provider
 from g4f.client import Client
 from dublib.Polyglot import Markdown
 from Source.Functions import GetTodayDate
@@ -44,7 +45,7 @@ class Neurwork:
 			Request = f"Сгенерируй 1 абзац (не более 400 символов) гороскопа совместимости для знаков зодиака {first_zodiak} и {second_zodiak} на сегодня, если известно, что их степень совместимости {Percent}%. "
 			Request += "Первый абзац описывает совместимость этих знаков на сегодняшний день, интересные детали сегодняшнего взаимодействия. "
 			Request += "Не добавляй в текст ничего лишнего, разметку и сам процент совместимости!!!"
-			Response = self.__Client.chat.completions.create(model = "gpt-4", provider = g4f.Provider.Ai4Chat, messages = [{"role": "user", "content": Request}])
+			Response = self.__Client.chat.completions.create(model = "gpt-4", provider = g4f.Provider.DDG, messages = [{"role": "user", "content": Request}])
 			Text_response = Response.choices[0].message.content.strip().replace("\n", "\n\n")
 			MainText = Markdown(Text_response).escaped_text
 

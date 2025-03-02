@@ -74,12 +74,5 @@ class Updater:
             if self.GetValue(Zodiak_Key, "date") != Today:
                 first_zodiak = Zodiak_Key.split("_")[0]
                 second_zodiak = Zodiak_Key.split("_")[1]
-                print(99)
                 Text = self.__neurowork.GetResponce(first_zodiak, second_zodiak)
-                print(Text)
                 self.AddText(Text, Zodiak_Key, Today)
-                self.__Bot.send_message(
-                    self.__chat_id,
-                    Text,
-                    parse_mode = "MarkdownV2" 
-                )
